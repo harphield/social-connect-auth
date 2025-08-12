@@ -23,12 +23,12 @@ class Reddit extends \SocialConnect\OAuth2\AbstractProvider
 
     public function getAuthorizeUri()
     {
-        return 'https://ssl.reddit.com/api/v1/authorize';
+        return 'https://www.reddit.com/api/v1/authorize';
     }
 
     public function getRequestTokenUri()
     {
-        return 'https://ssl.reddit.com/api/v1/access_token';
+        return 'https://www.reddit.com/api/v1/access_token';
     }
 
     public function getName()
