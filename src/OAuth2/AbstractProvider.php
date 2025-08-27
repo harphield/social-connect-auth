@@ -27,6 +27,8 @@ abstract class AbstractProvider extends AbstractBaseProvider
 
     protected bool $pkce = false;
 
+    protected int $pkceCodeVerifierLength = 96;
+
     /**
      * @return string
      */
@@ -50,7 +52,7 @@ abstract class AbstractProvider extends AbstractBaseProvider
         $parameters['response_type'] = 'code';
 
         if ($this->pkce) {
-            $codeVerifier = $this->generatePKCECodeVerifier();
+            $codeVerifier = $this->generatePKCECodeVerifier($this->pkceCodeVerifierLength);
             $this->session->set('code_verifier', $codeVerifier);
 
             $parameters['code_challenge'] = $this->generatePKCECodeChallenge($codeVerifier);
@@ -60,10 +62,12 @@ abstract class AbstractProvider extends AbstractBaseProvider
         return $parameters;
     }
 
-    private function generatePKCECodeVerifier(int $length = 128)
+    private function generatePKCECodeVerifier(int $length = 96): string
     {
-        if ($length < 43 || $length > 128) {
-            throw new \Exception("Length must be between 43 and 128");
+        if ($length < 32 || $length > 96) {
+            throw new \Exception(
+                "Final length must be between 43 and 128, so the number of random bytes must be between 32 and 96"
+            );
         }
 
         $randomBytes = random_bytes($length);
@@ -151,7 +155,7 @@ abstract class AbstractProvider extends AbstractBaseProvider
         return $this->httpStack->createRequest($this->requestHttpMethod, $this->getRequestTokenUri())
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withBody($this->httpStack->createStream(http_build_query($parameters, '', '&')))
-        ;
+            ;
     }
 
     /**
