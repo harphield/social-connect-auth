@@ -27,7 +27,7 @@ abstract class AbstractProvider extends AbstractBaseProvider
 
     protected bool $pkce = false;
 
-    protected int $pkceCodeVerifierLength = 96;
+    protected int $pkceCodeVerifierByteLength = 96;
 
     /**
      * @return string
@@ -52,7 +52,7 @@ abstract class AbstractProvider extends AbstractBaseProvider
         $parameters['response_type'] = 'code';
 
         if ($this->pkce) {
-            $codeVerifier = $this->generatePKCECodeVerifier($this->pkceCodeVerifierLength);
+            $codeVerifier = $this->generatePKCECodeVerifier($this->pkceCodeVerifierByteLength);
             $this->session->set('code_verifier', $codeVerifier);
 
             $parameters['code_challenge'] = $this->generatePKCECodeChallenge($codeVerifier);
@@ -62,15 +62,15 @@ abstract class AbstractProvider extends AbstractBaseProvider
         return $parameters;
     }
 
-    private function generatePKCECodeVerifier(int $length = 96): string
+    private function generatePKCECodeVerifier(int $byteLength = 96): string
     {
-        if ($length < 32 || $length > 96) {
+        if ($byteLength < 32 || $byteLength > 96) {
             throw new \Exception(
                 "Final length must be between 43 and 128, so the number of random bytes must be between 32 and 96"
             );
         }
 
-        $randomBytes = random_bytes($length);
+        $randomBytes = random_bytes($byteLength);
         return rtrim(strtr(base64_encode($randomBytes), '+/', '-_'), '=');
     }
 
